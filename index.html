@@ -48,6 +48,8 @@
   .pub .y{font-family:var(--display);font-size:1.25rem;color:var(--red)}
   .pub a{color:var(--ink);text-decoration-color:#bbb;text-underline-offset:3px}
   .pub a:hover{color:var(--red);text-decoration-color:var(--red)}
+  .pub .authors{grid-column:2;font-size:.92rem;color:var(--muted);margin-top:2px}
+  .pub .doi{grid-column:2;font-size:.88rem;overflow-wrap:anywhere}
   .pub .meta{grid-column:2;font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px}
   .oa{border:1px solid var(--red);color:var(--red);border-radius:999px;padding:0 8px;font-size:.78rem}
   .more{display:block;margin:22px auto 0;background:#fff;border:1px solid var(--ink);border-radius:5px;padding:10px 22px;color:var(--ink)}
@@ -129,7 +131,7 @@ const clean = t => t ? new DOMParser().parseFromString(t, "text/html").body.text
 
 fetch(DATA_URL)
   .then(r => { if (!r.ok) throw new Error(r.status); updateFooter(r.headers.get("Last-Modified")); return r.json(); })
-  .then(d => { works = d.filter(w => w.year); start(); })
+  .then(d => { works = d.filter(w => Number.isInteger(w.year) && w.year >= 2000 && w.year <= 2026); start(); })
   .catch(() => {
     const e = $("error");
     e.hidden = false;
@@ -144,8 +146,7 @@ function updateFooter(lm){
 
 function start(){
   const ys = works.map(w => w.year);
-  const min = Math.min(...ys), max = Math.max(...ys);
-  years = []; for (let y = min; y <= max; y++) years.push(y);
+  years = []; for (let y = 2000; y <= 2026; y++) years.push(y);
 
   $("fYear").innerHTML = '<option value="">Todos</option>' +
     [...years].reverse().map(y => `<option value="${y}">${y}</option>`).join("");
@@ -218,7 +219,23 @@ function renderList(sel){
     const meta = document.createElement("div"); meta.className = "meta";
     const t = document.createElement("span"); t.textContent = tipo(w.type); meta.append(t);
     if (w.oa) { const o = document.createElement("span"); o.className = "oa"; o.textContent = "Acceso abierto"; meta.append(o); }
-    li.append(y, body); li.lastChild.append(meta);
+    li.append(y, body);
+    if (Array.isArray(w.authors) && w.authors.length) {
+      const authors = document.createElement("div"); authors.className = "authors";
+      authors.textContent = "Autores: " + w.authors.join(", ");
+      li.append(authors);
+    }
+    if (w.doi) {
+      const doi = document.createElement("div"); doi.className = "doi";
+      doi.append("DOI: ");
+      const doiLink = document.createElement("a");
+      const normalizedDoi = String(w.doi).replace(/^https?:\/\/(dx\.)?doi\.org\//i, "");
+      doiLink.href = "https://doi.org/" + encodeURI(normalizedDoi);
+      doiLink.textContent = normalizedDoi;
+      doiLink.target = "_blank"; doiLink.rel = "noopener";
+      doi.append(doiLink); li.append(doi);
+    }
+    li.append(meta);
     list.append(li);
   });
   $("status").textContent = sel.length

@@ -1,7 +1,12 @@
-import csv, json, sys, requests, os
+import csv, json, sys, os, requests
+from pathlib import Path
+BASE = Path(__file__).resolve().parent
 
 MAILTO = "angelagp@ugr.es"          # cámbialo por tu correo real
-CSV = "Publicaciones_OpenAlex_UCHASS.csv"
+CSV = BASE / "Publicaciones_OpenAlex_UCHASS.csv"
+API_KEY = os.getenv("OPENALEX_API_KEY", "").strip()
+if not API_KEY:
+    sys.exit("Falta OPENALEX_API_KEY. Configúrala en la terminal antes de ejecutar.")
 
 # Lee los IDs de OpenAlex (separador de columnas ";" y de IDs "|").
 # Los miembros sin openalex_id quedan fuera automáticamente.
@@ -17,19 +22,24 @@ for k in range(0, len(ids), 50):
     cursor = "*"
     while cursor:
         resp = requests.get("https://api.openalex.org/works", params={
-            "filter": "authorships.author.id:" + "|".join(ids[k:k + 50]),
-            "select": "id,title,publication_year,type,doi,open_access",
-            "per-page": 100,
-            "cursor": cursor,
-            "mailto": MAILTO,
-            "api_key": os.environ["OPENALEX_API_KEY"],
+            "filter": ("authorships.author.id:" + "|".join(ids[k:k + 50])
+                       + ",from_publication_date:2000-01-01,to_publication_date:2026-12-31"),
+            "select": "id,title,publication_year,type,doi,open_access,authorships",
+            "per_page": 100, "cursor": cursor, "mailto": MAILTO,
+            "api_key": API_KEY,
         }, timeout=60)
         resp.raise_for_status()
         r = resp.json()
         for w in r["results"]:
+            year = w.get("publication_year")
+            if not isinstance(year, int) or not (2000 <= year <= 2026):
+                continue
+            authors = [a.get("author", {}).get("display_name", "").strip()
+                       for a in (w.get("authorships") or [])
+                       if a.get("author", {}).get("display_name")]
             works[w["id"]] = {
                 "id": w["id"], "title": w["title"], "year": w["publication_year"],
-                "type": w["type"], "doi": w["doi"],
+                "type": w["type"], "doi": w["doi"], "authors": authors,
                 "oa": bool((w.get("open_access") or {}).get("is_oa")),
             }
         cursor = r["meta"].get("next_cursor")
@@ -37,5 +47,6 @@ for k in range(0, len(ids), 50):
 if not works:
     sys.exit("No se obtuvo ninguna publicación; no se sobrescribe data.json")
 
-json.dump(list(works.values()), open("data.json", "w", encoding="utf-8"), ensure_ascii=False)
-print(len(works), "publicaciones únicas")
+with open(BASE / "data.json", "w", encoding="utf-8") as f:
+    json.dump(list(works.values()), f, ensure_ascii=False, indent=2)
+print(len(works), "publicaciones únicas entre 2000 y 2026")
