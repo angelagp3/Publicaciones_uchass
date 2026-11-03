@@ -1,4 +1,4 @@
-import csv, json, sys, requests
+import csv, json, sys, requests, os
 
 MAILTO = "angelagp@ugr.es"          # cámbialo por tu correo real
 CSV = "Publicaciones_OpenAlex_UCHASS.csv"
@@ -19,7 +19,10 @@ for k in range(0, len(ids), 50):
         resp = requests.get("https://api.openalex.org/works", params={
             "filter": "authorships.author.id:" + "|".join(ids[k:k + 50]),
             "select": "id,title,publication_year,type,doi,open_access",
-            "per-page": 200, "cursor": cursor, "mailto": MAILTO,
+            "per-page": 100,
+            "cursor": cursor,
+            "mailto": MAILTO,
+            "api_key": os.environ["OPENALEX_API_KEY"],
         }, timeout=60)
         resp.raise_for_status()
         r = resp.json()
