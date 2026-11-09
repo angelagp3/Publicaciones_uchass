@@ -19,6 +19,11 @@
   h1{font:700 clamp(1.5rem,2.35vw,2.25rem)/1.13 var(--sans);letter-spacing:-.035em;margin:0}
   .lead{font:400 .95rem/1.5 var(--serif);color:var(--muted);margin:8px 0 0}
   .source{flex:none;font:.82rem var(--sans);color:var(--muted);margin:0 0 2px}
+  .intro-actions{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex-wrap:wrap;flex:none}
+  .language-switch{display:inline-flex;align-items:center;gap:3px;border:1px solid #a7a59b;padding:3px;border-radius:2px;font-family:var(--sans);background:transparent}
+  .language-switch button{background:transparent;border:0;border-radius:1px;color:var(--ink);font:700 .73rem var(--sans);padding:7px 9px;min-width:41px}
+  .language-switch button[aria-pressed="true"]{background:#171717;color:#f6f3ed}
+  .language-switch button:hover:not([aria-pressed="true"]){background:#e3dfd5}
   .source a{color:inherit;text-underline-offset:3px}
   .top{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:14px;margin-top:20px}
   .panel{border:1px solid var(--line);border-radius:3px;padding:14px 18px 6px;background:transparent;min-width:0}
@@ -62,37 +67,43 @@
   .error{border:1px solid var(--accent);padding:14px;font:.9rem var(--sans);margin-top:12px}
   footer{padding-top:24px;font:.75rem var(--sans);color:var(--muted)}
   @media(max-width:1000px){ul.pubs{grid-template-columns:repeat(2,minmax(0,1fr))}.top{grid-template-columns:minmax(0,1fr) 200px}}
-  @media(max-width:660px){.wrap{padding:8px 14px 28px}.intro{display:block}.source{margin-top:10px}.top{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr;grid-template-rows:none}.chart-box{height:205px}ul.pubs{grid-template-columns:1fr}.pub{min-height:0}.filters label{flex:1;min-width:130px}.filters select{width:100%;min-width:0}.search-label{max-width:none;flex-basis:100%}.listing-head{display:block}.status{margin-top:6px}}
+  @media(max-width:660px){.wrap{padding:8px 14px 28px}.intro{display:block}.intro-actions{margin-top:12px;justify-content:space-between}.source{margin:0}.top{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr;grid-template-rows:none}.chart-box{height:205px}ul.pubs{grid-template-columns:1fr}.pub{min-height:0}.filters label{flex:1;min-width:130px}.filters select{width:100%;min-width:0}.search-label{max-width:none;flex-basis:100%}.listing-head{display:block}.status{margin-top:6px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="intro">
-    <div><p class="eyebrow">U^CHASS · Investigación</p>
-      <h1>La investigación, en cifras</h1>
-      <p class="lead">Publicaciones científicas de nuestros miembros · 2000–2026</p></div>
-    <p class="source">Fuente: <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a></p>
+    <div><p class="eyebrow" id="eyebrow">U^CHASS · Investigación</p>
+      <h1 id="mainTitle">La investigación, en cifras</h1>
+      <p class="lead" id="lead">Publicaciones científicas de nuestros miembros · 2000–2026</p></div>
+    <div class="intro-actions">
+      <div class="language-switch" role="group" aria-label="Idioma / Language">
+        <button type="button" id="langEs" aria-pressed="true" lang="es">ES</button>
+        <button type="button" id="langEn" aria-pressed="false" lang="en">EN</button>
+      </div>
+      <p class="source"><span id="sourceLabel">Fuente:</span> <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a></p>
+    </div>
   </header>
   <main>
-    <section class="top" aria-label="Resumen bibliométrico">
-      <div class="panel"><span class="section-kicker">Evolución anual de publicaciones</span>
+    <section class="top" id="summarySection" aria-label="Resumen bibliométrico">
+      <div class="panel"><span class="section-kicker" id="chartHeading">Evolución anual de publicaciones</span>
         <div class="chart-box"><canvas id="chart" role="img" aria-label="Publicaciones por año"></canvas></div>
-        <p class="hint">Selecciona una barra para filtrar los resultados por año.</p>
+        <p class="hint" id="chartHint">Selecciona una barra para filtrar los resultados por año.</p>
       </div>
       <div class="kpis">
-        <div class="kpi"><b id="kTotal">—</b><span>Publicaciones</span></div>
-        <div class="kpi"><b id="kOA">—</b><span>En acceso abierto</span></div>
+        <div class="kpi"><b id="kTotal">—</b><span id="totalLabel">Publicaciones</span></div>
+        <div class="kpi"><b id="kOA">—</b><span id="oaLabel">En acceso abierto</span></div>
       </div>
     </section>
-    <section class="toolbar" aria-label="Filtros de publicaciones">
+    <section class="toolbar" id="filtersSection" aria-label="Filtros de publicaciones">
       <div class="filters">
-        <label for="fYear">Año<select id="fYear"><option value="">Todos</option></select></label>
-        <label for="fType">Tipo de documento<select id="fType"><option value="">Todos</option></select></label>
-        <label class="search-label" for="fSearch">Buscar publicación<input id="fSearch" type="search" placeholder="Título, autor o DOI" autocomplete="off"></label>
+        <label for="fYear"><span id="yearLabel">Año</span><select id="fYear"><option value="">Todos</option></select></label>
+        <label for="fType"><span id="typeLabel">Tipo de documento</span><select id="fType"><option value="">Todos</option></select></label>
+        <label class="search-label" for="fSearch"><span id="searchLabel">Buscar publicación</span><input id="fSearch" type="search" placeholder="Título, autor o DOI" autocomplete="off"></label>
         <button class="btn-reset" id="reset" type="button">Quitar filtros</button>
       </div>
     </section>
-    <div class="listing-head"><h2>Publicaciones</h2><p class="status" id="status" aria-live="polite"></p></div>
+    <div class="listing-head"><h2 id="listingTitle">Publicaciones</h2><p class="status" id="status" aria-live="polite"></p></div>
     <ul class="pubs" id="list"></ul>
     <button class="more" id="more" type="button" hidden>Mostrar más publicaciones</button>
     <div id="error" class="error" hidden></div>
@@ -104,50 +115,133 @@
 const DATA_URL = "data.json";
 const PAGE = 18;
 
-const TIPOS = {
-  "article":"Artículo", "book-chapter":"Capítulo de libro", "book":"Libro",
-  "preprint":"Preprint", "dataset":"Conjunto de datos", "dissertation":"Dissertation",
-  "review":"Reseña", "editorial":"Editorial", "letter":"Carta", "report":"Informe",
-  "reference-entry":"Entrada de referencia", "peer-review":"Revisión por pares",
-  "paratext":"Paratexto", "erratum":"Corrección", "retraction":"Retractación",
-  "standard":"Norma", "grant":"Proyecto", "supplementary-materials":"Material suplementario",
-  "libguides":"Guía", "other":"Otro"
+const I18N = {
+  es: {
+    eyebrow: "U^CHASS · Investigación", heading: "La investigación, en cifras",
+    lead: "Publicaciones científicas de nuestros miembros · 2000–2026",
+    source: "Fuente:", chart: "Evolución anual de publicaciones",
+    hint: "Selecciona una barra para filtrar los resultados por año.",
+    total: "Publicaciones", oaTotal: "En acceso abierto", year: "Año",
+    type: "Tipo de documento", search: "Buscar publicación", searchPlaceholder: "Título, autor o DOI",
+    all: "Todos", reset: "Quitar filtros", listing: "Publicaciones",
+    oa: "Acceso abierto", more: "Mostrar más", remaining: "restantes",
+    showing: "Mostrando {shown} de {total}", noMatches: "No hay publicaciones con estos filtros.",
+    noTitle: "(Sin título)", error: "No se pudieron cargar los datos. Inténtalo de nuevo más tarde.",
+    lastUpdate: "Última actualización:", publicationsTooltip: "publicaciones",
+    summaryAria: "Resumen bibliométrico", filterAria: "Filtros de publicaciones",
+    chartAria: "Publicaciones por año",
+    types: {
+      "article":"Artículo", "book-chapter":"Capítulo de libro", "book":"Libro",
+      "preprint":"Preprint", "dataset":"Conjunto de datos", "dissertation":"Dissertation",
+      "review":"Reseña", "editorial":"Editorial", "letter":"Carta", "report":"Informe",
+      "reference-entry":"Entrada de referencia", "peer-review":"Revisión por pares",
+      "paratext":"Paratexto", "erratum":"Corrección", "retraction":"Retractación",
+      "standard":"Norma", "grant":"Proyecto", "supplementary-materials":"Material suplementario",
+      "libguides":"Guía", "conference-paper":"Comunicación de congreso", "other":"Otro"
+    }
+  },
+  en: {
+    eyebrow: "U^CHASS · Research", heading: "Research in numbers",
+    lead: "Research publications by our members · 2000–2026",
+    source: "Source:", chart: "Annual publication output",
+    hint: "Select a bar to filter results by year.",
+    total: "Publications", oaTotal: "Open access", year: "Year",
+    type: "Document type", search: "Search publications", searchPlaceholder: "Title, author or DOI",
+    all: "All", reset: "Clear filters", listing: "Publications",
+    oa: "Open access", more: "Show more", remaining: "remaining",
+    showing: "Showing {shown} of {total}", noMatches: "No publications match these filters.",
+    noTitle: "(Untitled)", error: "Could not load the data. Please try again later.",
+    lastUpdate: "Last updated:", publicationsTooltip: "publications",
+    summaryAria: "Bibliometric summary", filterAria: "Publication filters",
+    chartAria: "Publications per year",
+    types: {
+      "article":"Article", "book-chapter":"Book chapter", "book":"Book",
+      "preprint":"Preprint", "dataset":"Dataset", "dissertation":"Dissertation",
+      "review":"Review", "editorial":"Editorial", "letter":"Letter", "report":"Report",
+      "reference-entry":"Reference entry", "peer-review":"Peer review",
+      "paratext":"Paratext", "erratum":"Erratum", "retraction":"Retraction",
+      "standard":"Standard", "grant":"Grant", "supplementary-materials":"Supplementary materials",
+      "libguides":"Guide", "conference-paper":"Conference paper", "other":"Other"
+    }
+  }
 };
-const tipo = t => TIPOS[t] || t || "Otro";
-const nf = new Intl.NumberFormat("es-ES");
 const $ = id => document.getElementById(id);
+let language = "es";
+try { language = localStorage.getItem("uchass-lang") === "en" ? "en" : "es"; } catch(e) {}
+const tr = () => I18N[language];
+const tipo = t => tr().types[t] || t || tr().types.other;
+const nf = n => new Intl.NumberFormat(language === "es" ? "es-ES" : "en-GB").format(n);
+let modifiedDate = null;
+
+function setLanguage(next) {
+  language = next === "en" ? "en" : "es";
+  try { localStorage.setItem("uchass-lang", language); } catch(e) {}
+  document.documentElement.lang = language;
+  $("langEs").setAttribute("aria-pressed", String(language === "es"));
+  $("langEn").setAttribute("aria-pressed", String(language === "en"));
+  const t = tr();
+  const fields = {
+    eyebrow: "eyebrow", mainTitle: "heading", lead: "lead", sourceLabel: "source",
+    chartHeading: "chart", chartHint: "hint", totalLabel: "total", oaLabel: "oaTotal",
+    yearLabel: "year", typeLabel: "type", searchLabel: "search", reset: "reset",
+    listingTitle: "listing"
+  };
+  for (const [id, key] of Object.entries(fields)) $(id).textContent = t[key];
+  $("fSearch").placeholder = t.searchPlaceholder;
+  $("summarySection").setAttribute("aria-label", t.summaryAria);
+  $("filtersSection").setAttribute("aria-label", t.filterAria);
+  $("chart").setAttribute("aria-label", t.chartAria);
+  $("error").textContent = t.error;
+  fillFilters();
+  updateFooter();
+  if(chart) { chart.options.plugins.tooltip.callbacks.label = c => nf(c.parsed.y) + " " + tr().publicationsTooltip; render(); }
+  requestAnimationFrame(notifyHeight);
+}
+function fillFilters() {
+  $("fYear").innerHTML = '<option value="">' + tr().all + '</option>' +
+    [...years].reverse().map(y => `<option value="${y}">${y}</option>`).join("");
+  $("fType").innerHTML = '<option value="">' + tr().all + '</option>' +
+    Object.keys(typeCounts).sort((a,b) => typeCounts[b]-typeCounts[a])
+      .map(t => `<option value="${t}">${tipo(t)} (${nf(typeCounts[t])})</option>`).join("");
+  $("fYear").value = state.year;
+  $("fType").value = state.type;
+}
 
 let works = [], years = [], chart = null, shown = PAGE;
 const state = { year: "", type: "", search: "" };
+let typeCounts = {};
 
-const clean = t => t ? new DOMParser().parseFromString(t, "text/html").body.textContent.trim() : "(Sin título)";
+const clean = t => t ? new DOMParser().parseFromString(t, "text/html").body.textContent.trim() : tr().noTitle;
+
+$("langEs").addEventListener("click", () => setLanguage("es"));
+$("langEn").addEventListener("click", () => setLanguage("en"));
+setLanguage(language);
 
 fetch(DATA_URL)
-  .then(r => { if (!r.ok) throw new Error(r.status); updateFooter(r.headers.get("Last-Modified")); return r.json(); })
+  .then(r => { if (!r.ok) throw new Error(r.status); modifiedDate = r.headers.get("Last-Modified"); updateFooter(); return r.json(); })
   .then(d => { works = d.filter(w => Number.isInteger(w.year) && w.year >= 2000 && w.year <= 2026); start(); })
   .catch(() => {
     const e = $("error");
     e.hidden = false;
-    e.textContent = "No se pudieron cargar los datos. Inténtalo de nuevo más tarde.";
+    e.textContent = tr().error;
   });
 
-function updateFooter(lm){
-  if(!lm) return;
-  const f = new Date(lm).toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
-  $("foot").textContent = "Fuente: OpenAlex. Última actualización: " + f + ".";
+function updateFooter(){
+  let label = tr().source + " OpenAlex.";
+  if(modifiedDate && !Number.isNaN(Date.parse(modifiedDate))) {
+    const f = new Date(modifiedDate).toLocaleDateString(language === "es" ? "es-ES" : "en-GB", {day:"numeric", month:"long", year:"numeric"});
+    label += " " + tr().lastUpdate + " " + f + ".";
+  }
+  $("foot").textContent = label;
 }
 
 function start(){
   const ys = works.map(w => w.year);
   years = []; for (let y = 2000; y <= 2026; y++) years.push(y);
 
-  $("fYear").innerHTML = '<option value="">Todos</option>' +
-    [...years].reverse().map(y => `<option value="${y}">${y}</option>`).join("");
-
-  const tc = {}; works.forEach(w => tc[w.type] = (tc[w.type] || 0) + 1);
-  $("fType").innerHTML = '<option value="">Todos</option>' +
-    Object.keys(tc).sort((a,b) => tc[b]-tc[a])
-      .map(t => `<option value="${t}">${tipo(t)} (${nf.format(tc[t])})</option>`).join("");
+  typeCounts = {};
+  works.forEach(w => typeCounts[w.type] = (typeCounts[w.type] || 0) + 1);
+  fillFilters();
 
   $("fYear").onchange = e => { state.year = e.target.value; shown = PAGE; render(); };
   $("fType").onchange = e => { state.type = e.target.value; shown = PAGE; render(); };
@@ -162,7 +256,7 @@ function start(){
       maintainAspectRatio: false,
       animation: { duration: 250 },
       plugins: { legend: { display: false },
-        tooltip: { callbacks: { label: c => nf.format(c.parsed.y) + " publicaciones" } } },
+        tooltip: { callbacks: { label: c => nf(c.parsed.y) + " " + tr().publicationsTooltip } } },
       scales: {
         y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#d8d5cb" } },
         x: { grid: { display: false }, ticks: { maxRotation: 60, minRotation: 45 } }
@@ -198,8 +292,8 @@ function render(){
   chart.update();
 
   const sel = currentSel();
-  $("kTotal").textContent = nf.format(sel.length);
-  $("kOA").textContent = nf.format(sel.filter(w => w.oa).length);
+  $("kTotal").textContent = nf(sel.length);
+  $("kOA").textContent = nf(sel.filter(w => w.oa).length);
   renderList(sel);
 }
 
@@ -232,15 +326,15 @@ function renderList(sel){
       doiLink.target="_blank"; doiLink.rel="noopener";
       doi.append(doiLink); bottom.append(doi);
     }
-    if(w.oa){const oa=document.createElement("span"); oa.className="oa";oa.textContent="Acceso abierto";bottom.append(oa);}
+    if(w.oa){const oa=document.createElement("span"); oa.className="oa";oa.textContent=tr().oa;bottom.append(oa);}
     li.append(bottom); list.append(li);
   });
   $("status").textContent = sel.length
-    ? `Mostrando ${nf.format(Math.min(shown, sel.length))} de ${nf.format(sel.length)}`
+    ? `Mostrando ${nf(Math.min(shown, sel.length))} de ${nf(sel.length)}`
     : "No hay publicaciones con estos filtros.";
   const rest = sel.length - shown;
   $("more").hidden = rest <= 0;
-  $("more").textContent = `Mostrar más (${nf.format(Math.max(rest,0))} restantes)`;
+  $("more").textContent = `Mostrar más (${nf(Math.max(rest,0))} restantes)`;
   requestAnimationFrame(notifyHeight);
 }
 
